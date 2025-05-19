@@ -9,16 +9,13 @@
 pub(crate) mod batching;
 pub(crate) mod srs;
 pub(crate) mod util;
-
 use crate::{
     pcs::{prelude::Commitment, PCSError, PolynomialCommitmentScheme, StructuredReferenceString},
     BatchProof,
 };
 use arithmetic::evaluate_opt;
 use ark_ec::{
-    pairing::Pairing,
-    scalar_mul::{fixed_base::FixedBase, variable_base::VariableBaseMSM},
-    AffineRepr, CurveGroup,
+    pairing::Pairing, scalar_mul::variable_base::VariableBaseMSM, AffineRepr, CurveGroup, ScalarMul,
 };
 use ark_ff::PrimeField;
 use ark_poly::{DenseMultilinearExtension, MultilinearExtension};
@@ -289,12 +286,8 @@ fn verify_internal<E: Pairing>(
     let prepare_inputs_timer = start_timer!(|| "prepare pairing inputs");
 
     let scalar_size = E::ScalarField::MODULUS_BIT_SIZE as usize;
-    let window_size = FixedBase::get_mul_window_size(num_var);
 
-    let h_table =
-        FixedBase::get_window_table(scalar_size, window_size, verifier_param.h.into_group());
-    let h_mul: Vec<E::G2> = FixedBase::msm(scalar_size, window_size, &h_table, point);
-
+    let h_mul: Vec<E::G2Affine> = verifier_param.h.into_group().batch_mul(point);
     let ignored = verifier_param.num_vars - num_var;
     let h_vec: Vec<_> = (0..num_var)
         .map(|i| verifier_param.h_mask[ignored + i].into_group() - h_mul[i])

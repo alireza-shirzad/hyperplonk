@@ -21,11 +21,11 @@ use crate::{
 };
 use arithmetic::{build_eq_x_r_vec, DenseMultilinearExtension, VPAuxInfo, VirtualPolynomial};
 use ark_ec::{pairing::Pairing, scalar_mul::variable_base::VariableBaseMSM, CurveGroup};
-
+use ark_poly::Polynomial;
+use ark_serialize::CanonicalSerialize;
 use ark_std::{end_timer, log2, start_timer, One, Zero};
 use std::{collections::BTreeMap, iter, marker::PhantomData, ops::Deref, sync::Arc};
 use transcript::IOPTranscript;
-use ark_serialize::CanonicalSerialize;
 #[derive(Clone, Debug, Default, PartialEq, Eq, CanonicalSerialize)]
 pub struct BatchProof<E, PCS>
 where
@@ -311,7 +311,7 @@ mod tests {
         let evals = polys
             .iter()
             .zip(points.iter())
-            .map(|(f, p)| f.evaluate(p).unwrap())
+            .map(|(f, p)| f.evaluate(p))
             .collect::<Vec<_>>();
 
         let commitments = polys

@@ -265,7 +265,7 @@ mod test {
     use arithmetic::VPAuxInfo;
     use ark_bls12_381::{Bls12_381, Fr};
     use ark_ec::pairing::Pairing;
-    use ark_poly::{DenseMultilinearExtension, MultilinearExtension};
+    use ark_poly::{DenseMultilinearExtension, MultilinearExtension, Polynomial};
     use ark_std::test_rng;
     use std::{marker::PhantomData, sync::Arc};
 
@@ -332,7 +332,7 @@ mod test {
             &mut transcript,
         )?;
         assert_eq!(
-            prod_x.evaluate(&prod_subclaim.final_query.0).unwrap(),
+            prod_x.evaluate(&prod_subclaim.final_query.0),
             prod_subclaim.final_query.1,
             "different product"
         );
@@ -357,7 +357,7 @@ mod test {
             &mut transcript,
         )?;
         assert_ne!(
-            prod_x_bad.evaluate(&bad_subclaim.final_query.0).unwrap(),
+            prod_x_bad.evaluate(&bad_subclaim.final_query.0),
             bad_subclaim.final_query.1,
             "can't detect wrong proof"
         );
