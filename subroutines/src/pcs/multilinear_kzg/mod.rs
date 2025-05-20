@@ -285,8 +285,6 @@ fn verify_internal<E: Pairing>(
 
     let prepare_inputs_timer = start_timer!(|| "prepare pairing inputs");
 
-    let scalar_size = E::ScalarField::MODULUS_BIT_SIZE as usize;
-
     let h_mul: Vec<E::G2Affine> = verifier_param.h.into_group().batch_mul(point);
     let ignored = verifier_param.num_vars - num_var;
     let h_vec: Vec<_> = (0..num_var)
