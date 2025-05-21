@@ -24,13 +24,13 @@ use ark_ec::{pairing::Pairing, scalar_mul::variable_base::VariableBaseMSM, Curve
 use ark_poly::Polynomial;
 use ark_serialize::{CanonicalDeserialize, CanonicalSerialize};
 use ark_std::{end_timer, log2, start_timer, One, Zero};
-use std::{collections::BTreeMap, iter, marker::PhantomData, ops::Deref, sync::Arc};
+use std::{collections::BTreeMap, fmt::Debug, iter, marker::PhantomData, ops::Deref, sync::Arc};
 use transcript::IOPTranscript;
 #[derive(Clone, Debug, Default, PartialEq, Eq, CanonicalSerialize, CanonicalDeserialize)]
 pub struct BatchProof<E, PCS>
 where
     E: Pairing,
-    PCS: PolynomialCommitmentScheme<E>,
+    PCS: PolynomialCommitmentScheme<E> + Clone + Eq + Debug,
 {
     /// A sum check proof proving tilde g's sum
     pub(crate) sum_check_proof: IOPProof<E::ScalarField>,
@@ -62,7 +62,7 @@ where
         Polynomial = Arc<DenseMultilinearExtension<E::ScalarField>>,
         Point = Vec<E::ScalarField>,
         Evaluation = E::ScalarField,
-    >,
+    >+ Clone + Eq + Debug,
 {
     let open_timer = start_timer!(|| format!("multi open {} points", points.len()));
     for eval_point in points.iter() {
@@ -201,7 +201,7 @@ where
         Point = Vec<E::ScalarField>,
         Evaluation = E::ScalarField,
         Commitment = Commitment<E>,
-    >,
+    > + Clone + Eq + Debug,
 {
     let open_timer = start_timer!(|| "batch verification");
     for eval_point in points.iter() {

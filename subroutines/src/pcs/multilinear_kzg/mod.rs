@@ -32,6 +32,8 @@ use transcript::IOPTranscript;
 use self::batching::{batch_verify_internal, multi_open_internal};
 
 /// KZG Polynomial Commitment Scheme on multilinear polynomials.
+
+#[derive(CanonicalSerialize, CanonicalDeserialize, Clone, Debug, PartialEq, Eq)]
 pub struct MultilinearKzgPCS<E: Pairing> {
     #[doc(hidden)]
     phantom: PhantomData<E>,
