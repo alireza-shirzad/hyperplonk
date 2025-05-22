@@ -58,7 +58,7 @@ fn bench_pcs() -> Result<(), PCSError> {
         let (proof, value) = {
             let start = Instant::now();
             for _ in 0..repetition {
-                let _open = MultilinearKzgPCS::open(&ck, &poly, &point)?;
+                let _open = MultilinearKzgPCS::open(&ck, &poly, &(), &point)?;
             }
 
             println!(
@@ -66,7 +66,7 @@ fn bench_pcs() -> Result<(), PCSError> {
                 nv,
                 start.elapsed().as_nanos() / repetition as u128
             );
-            MultilinearKzgPCS::open(&ck, &poly, &point)?
+            MultilinearKzgPCS::open(&ck, &poly, &(), &point)?
         };
 
         // verify
@@ -74,7 +74,7 @@ fn bench_pcs() -> Result<(), PCSError> {
             let start = Instant::now();
             for _ in 0..repetition {
                 assert!(MultilinearKzgPCS::verify(
-                    &vk, &com, &point, &value, &proof
+                    &vk, &com.0, &point, &value, &proof
                 )?);
             }
             println!(

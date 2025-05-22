@@ -58,11 +58,14 @@ pub(crate) fn multi_open_internal<E, PCS>(
 where
     E: Pairing,
     PCS: PolynomialCommitmentScheme<
-        E,
-        Polynomial = Arc<DenseMultilinearExtension<E::ScalarField>>,
-        Point = Vec<E::ScalarField>,
-        Evaluation = E::ScalarField,
-    >+ Clone + Eq + Debug,
+            E,
+            Polynomial = Arc<DenseMultilinearExtension<E::ScalarField>>,
+            Point = Vec<E::ScalarField>,
+            Aux = (),
+            Evaluation = E::ScalarField,
+        > + Clone
+        + Eq
+        + Debug,
 {
     let open_timer = start_timer!(|| format!("multi open {} points", points.len()));
     for eval_point in points.iter() {
@@ -166,7 +169,8 @@ where
     end_timer!(step);
 
     let step = start_timer!(|| "pcs open");
-    let (g_prime_proof, _g_prime_eval) = PCS::open(prover_param, &g_prime, a2.to_vec().as_ref())?;
+    let (g_prime_proof, _g_prime_eval) =
+        PCS::open(prover_param, &g_prime, &(), a2.to_vec().as_ref())?;
     // assert_eq!(g_prime_eval, tilde_g_eval);
     end_timer!(step);
 
@@ -196,12 +200,14 @@ pub(crate) fn batch_verify_internal<E, PCS>(
 where
     E: Pairing,
     PCS: PolynomialCommitmentScheme<
-        E,
-        Polynomial = Arc<DenseMultilinearExtension<E::ScalarField>>,
-        Point = Vec<E::ScalarField>,
-        Evaluation = E::ScalarField,
-        Commitment = Commitment<E>,
-    > + Clone + Eq + Debug,
+            E,
+            Polynomial = Arc<DenseMultilinearExtension<E::ScalarField>>,
+            Point = Vec<E::ScalarField>,
+            Evaluation = E::ScalarField,
+            Commitment = Commitment<E>,
+        > + Clone
+        + Eq
+        + Debug,
 {
     let open_timer = start_timer!(|| "batch verification");
     for eval_point in points.iter() {
@@ -316,7 +322,7 @@ mod tests {
 
         let commitments = polys
             .iter()
-            .map(|poly| MultilinearKzgPCS::commit(ml_ck.clone(), poly).unwrap())
+            .map(|poly| MultilinearKzgPCS::commit(ml_ck.clone(), poly).unwrap().0)
             .collect::<Vec<_>>();
 
         let mut transcript = IOPTranscript::new("test transcript".as_ref());

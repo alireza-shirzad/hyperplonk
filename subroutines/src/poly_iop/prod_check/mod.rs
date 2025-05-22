@@ -211,8 +211,8 @@ where
         Ok((
             ProductCheckProof {
                 zero_check_proof,
-                prod_x_comm,
-                frac_comm,
+                prod_x_comm: prod_x_comm.0,
+                frac_comm: frac_comm.0,
             },
             prod_x,
             frac_poly,
