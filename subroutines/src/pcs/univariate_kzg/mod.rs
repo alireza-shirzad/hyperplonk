@@ -51,7 +51,7 @@ impl<E: Pairing> PolynomialCommitmentScheme<E> for UnivariateKzgPCS<E> {
     // Polynomial and its associated types
     type Commitment = Commitment<E>;
     type Proof = UnivariateKzgProof<E>;
-    type Aux = ();
+
     // We do not implement batch univariate KZG at the current version.
     type BatchProof = ();
 
@@ -90,7 +90,7 @@ impl<E: Pairing> PolynomialCommitmentScheme<E> for UnivariateKzgPCS<E> {
     fn commit(
         prover_param: impl Borrow<Self::ProverParam>,
         poly: &Self::Polynomial,
-    ) -> Result<(Self::Commitment, Self::Aux), PCSError> {
+    ) -> Result<Self::Commitment, PCSError> {
         let prover_param = prover_param.borrow();
         let commit_time =
             start_timer!(|| format!("Committing to polynomial of degree {} ", poly.degree()));
@@ -112,7 +112,7 @@ impl<E: Pairing> PolynomialCommitmentScheme<E> for UnivariateKzgPCS<E> {
         end_timer!(msm_time);
 
         end_timer!(commit_time);
-        Ok((Commitment(commitment), ()))
+        Ok(Commitment(commitment))
     }
 
     /// On input a polynomial `p` and a point `point`, outputs a proof for the
@@ -120,7 +120,6 @@ impl<E: Pairing> PolynomialCommitmentScheme<E> for UnivariateKzgPCS<E> {
     fn open(
         prover_param: impl Borrow<Self::ProverParam>,
         polynomial: &Self::Polynomial,
-        _aux: &Self::Aux,
         point: &Self::Point,
     ) -> Result<(Self::Proof, Self::Evaluation), PCSError> {
         let open_time =
@@ -209,9 +208,9 @@ mod tests {
             );
             let comm = UnivariateKzgPCS::<E>::commit(&ck, &p)?;
             let point = E::ScalarField::rand(rng);
-            let (proof, value) = UnivariateKzgPCS::<E>::open(&ck, &p, &(), &point)?;
+            let (proof, value) = UnivariateKzgPCS::<E>::open(&ck, &p, &point)?;
             assert!(
-                UnivariateKzgPCS::<E>::verify(&vk, &comm.0, &point, &value, &proof)?,
+                UnivariateKzgPCS::<E>::verify(&vk, &comm, &point, &value, &proof)?,
                 "proof was incorrect for max_degree = {}, polynomial_degree = {}",
                 degree,
                 p.degree(),
@@ -235,9 +234,9 @@ mod tests {
             );
             let comm = UnivariateKzgPCS::<E>::commit(&ck, &p)?;
             let point = E::ScalarField::rand(rng);
-            let (proof, value) = UnivariateKzgPCS::<E>::open(&ck, &p, &(), &point)?;
+            let (proof, value) = UnivariateKzgPCS::<E>::open(&ck, &p, &point)?;
             assert!(
-                UnivariateKzgPCS::<E>::verify(&vk, &comm.0, &point, &value, &proof)?,
+                UnivariateKzgPCS::<E>::verify(&vk, &comm, &point, &value, &proof)?,
                 "proof was incorrect for max_degree = {}, polynomial_degree = {}",
                 degree,
                 p.degree(),

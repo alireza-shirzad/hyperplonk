@@ -59,7 +59,7 @@ impl<E: Pairing> PolynomialCommitmentScheme<E> for MultilinearKzgPCS<E> {
     type Commitment = Commitment<E>;
     type Proof = MultilinearKzgProof<E>;
     type BatchProof = BatchProof<E, Self>;
-    type Aux = ();
+
     /// Build SRS for testing.
     ///
     /// - For univariate polynomials, `log_size` is the log of maximum degree.
@@ -101,7 +101,7 @@ impl<E: Pairing> PolynomialCommitmentScheme<E> for MultilinearKzgPCS<E> {
     fn commit(
         prover_param: impl Borrow<Self::ProverParam>,
         poly: &Self::Polynomial,
-    ) -> Result<(Self::Commitment, Self::Aux), PCSError> {
+    ) -> Result<Self::Commitment, PCSError> {
         let prover_param = prover_param.borrow();
         let commit_timer = start_timer!(|| "commit");
         if prover_param.num_vars < poly.num_vars {
@@ -122,7 +122,7 @@ impl<E: Pairing> PolynomialCommitmentScheme<E> for MultilinearKzgPCS<E> {
         end_timer!(msm_timer);
 
         end_timer!(commit_timer);
-        Ok((Commitment(commitment), ()))
+        Ok(Commitment(commitment))
     }
 
     /// On input a polynomial `p` and a point `point`, outputs a proof for the
@@ -137,7 +137,6 @@ impl<E: Pairing> PolynomialCommitmentScheme<E> for MultilinearKzgPCS<E> {
     fn open(
         prover_param: impl Borrow<Self::ProverParam>,
         polynomial: &Self::Polynomial,
-        _aux: &Self::Aux,
         point: &Self::Point,
     ) -> Result<(Self::Proof, Self::Evaluation), PCSError> {
         open_internal(prover_param.borrow(), polynomial, point)
@@ -343,15 +342,15 @@ mod tests {
         let (ck, vk) = MultilinearKzgPCS::trim(params, None, Some(nv))?;
         let point: Vec<_> = (0..nv).map(|_| Fr::rand(rng)).collect();
         let com = MultilinearKzgPCS::commit(&ck, poly)?;
-        let (proof, value) = MultilinearKzgPCS::open(&ck, poly, &(), &point)?;
+        let (proof, value) = MultilinearKzgPCS::open(&ck, poly, &point)?;
 
         assert!(MultilinearKzgPCS::verify(
-            &vk, &com.0, &point, &value, &proof
+            &vk, &com, &point, &value, &proof
         )?);
 
         let value = Fr::rand(rng);
         assert!(!MultilinearKzgPCS::verify(
-            &vk, &com.0, &point, &value, &proof
+            &vk, &com, &point, &value, &proof
         )?);
 
         Ok(())

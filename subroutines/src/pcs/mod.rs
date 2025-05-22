@@ -40,8 +40,6 @@ pub trait PolynomialCommitmentScheme<E: Pairing> {
     type Proof: Clone + CanonicalSerialize + CanonicalDeserialize + Debug + PartialEq + Eq;
     /// Batch proofs
     type BatchProof: CanonicalSerialize + CanonicalDeserialize + Clone + Debug + Eq;
-    /// Auxiliary information
-    type Aux: Clone + CanonicalSerialize + CanonicalDeserialize + Debug + PartialEq + Eq;
 
     /// Build SRS for testing.
     ///
@@ -84,14 +82,13 @@ pub trait PolynomialCommitmentScheme<E: Pairing> {
     fn commit(
         prover_param: impl Borrow<Self::ProverParam>,
         poly: &Self::Polynomial,
-    ) -> Result<(Self::Commitment, Self::Aux), PCSError>;
+    ) -> Result<Self::Commitment, PCSError>;
 
     /// On input a polynomial `p` and a point `point`, outputs a proof for the
     /// same.
     fn open(
         prover_param: impl Borrow<Self::ProverParam>,
         polynomial: &Self::Polynomial,
-        aux: &Self::Aux,
         point: &Self::Point,
     ) -> Result<(Self::Proof, Self::Evaluation), PCSError>;
 

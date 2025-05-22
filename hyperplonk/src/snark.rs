@@ -36,15 +36,13 @@ where
     // But since PCS::Polynomial can be both univariate or multivariate in our implementation
     // we cannot bound PCS::Polynomial with a property trait bound.
     PCS: PolynomialCommitmentScheme<
-            E,
-            Polynomial = Arc<DenseMultilinearExtension<E::ScalarField>>,
-            Point = Vec<E::ScalarField>,
-            Evaluation = E::ScalarField,
-            Commitment = Commitment<E>,
-            BatchProof = BatchProof<E, PCS>,
-        > + Clone
-        + Eq
-        + std::fmt::Debug,
+        E,
+        Polynomial = Arc<DenseMultilinearExtension<E::ScalarField>>,
+        Point = Vec<E::ScalarField>,
+        Evaluation = E::ScalarField,
+        Commitment = Commitment<E>,
+        BatchProof = BatchProof<E, PCS>,
+    > + Clone + Eq + std::fmt::Debug,
 {
     type Index = HyperPlonkIndex<E::ScalarField>;
     type ProvingKey = HyperPlonkProvingKey<E, PCS>;
